@@ -294,16 +294,58 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
 
 5. Vous devriez voir la liste des fichiers et des répertoires, ainsi que leur nombre total, s'afficher dans le terminal.
 
+### 2.7 Créer un script qui affiche un message donné en argument autant de fois que demandé
+
+1. Créez un nouveau fichier texte nommé `affiche_message.sh`:
+
+   ```bash
+   nano affiche_message.sh
+   ```
+
+2. Dans l'éditeur `nano`, écrivez un script bash qui prend deux arguments : un nombre et un message. Le script doit afficher le message autant de fois que le nombre spécifié. Le contenu du fichier devrait ressembler à ceci:
+
+   ```bash
+   #!/usr/bin/env bash
+
+   function help {
+       echo "Usage: $0 <nombre> <message>"
+       exit 1
+   }
+
+   if [[ $# -lt 2 ]]; then
+       help
+   fi
+
+   COUNT=$1
+   shift
+
+   MESSAGE="$*"
+
+   for i in $(seq 1 "$COUNT"); do
+       echo "$MESSAGE"
+   done
+   ```
+
+3. Enregistrez le fichier et quittez l'éditeur `nano`.
+
+4. Rendez le script exécutable:
+
+   ```bash
+   chmod +x affiche_message.sh
+   ```
+
+5. Appelez le script avec un nombre et un message en argument:
+
+   ```bash
+   ./affiche_message.sh 5 "Bonjour, Monde!"
+   ```
+
 ### 2.x Questions
 
 1. Que fait la ligne `#!/usr/bin/env bash` au début de chaque script?
-
 2. Comment renommer un fichier en utilisant la ligne de commande? Quelle différence avec un déplacement de fichier?
-
 3. Que fait la commande `find . -maxdepth 1 -type f | wc -l` dans le script?
-
 4. Comment le script gère-t-il les options `-s` et `-d`? Est-ce que les options peuvent être combinées?
-
 5. Comment vérifier que `/usr/local/bin` est dans votre variable d'environnement `PATH`?
 
 ## Partie 3: Le réseau
@@ -946,3 +988,4 @@ Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécur
 10. Que se passe-t-il lorsque `alice` essaie de lire le fichier secret de `bob` ? Pourquoi ?
 11. Comment pouvez-vous vérifier à quel groupe appartient un utilisateur avec la commande `groups` ?
 12. Pourquoi est-il important de gérer correctement les permissions et les groupes sur un système multi-utilisateurs ?
+
