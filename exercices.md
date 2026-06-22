@@ -1,6 +1,6 @@
 # Linux hands-on exercises
 
-## Partie 1
+## Partie 1: Les fichiers et les dossiers
 
 ### 1.0 But
 
@@ -63,9 +63,8 @@ Dans cet exercice, vous allez apprendre à manipuler des dossiers et des fichier
 2. Que fait la commande `ls -R` ?
 3. Que fait la commande `date > file` ?
 4. Que fait la commande `file` ?
-5. Que se passe-t-il si vous utilisez `>` pour rediriger la sortie d'une commande vers un fichier qui existe déjà ? Comment faire pour ajouter du contenu à la fin du fichier au lieu de l'écraser ?
 
-## Partie 2
+## Partie 2: Le scripting
 
 ### 2.0 But
 
@@ -307,7 +306,7 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
 
 5. Comment vérifier que `/usr/local/bin` est dans votre variable d'environnement `PATH`?
 
-## Partie 3
+## Partie 3: Le réseau
 
 ### 3.0 But
 
@@ -406,5 +405,253 @@ L'objectif de cet exercice est de vous familiariser avec les bases du réseau en
 6. Quelle est la réponse du serveur web lorsque vous demandez la page d'accueil de www.ifapme.be ?
 7. Quelles informations utiles pouvez-vous obtenir en utilisant la commande `ss` pour afficher les connexions réseau actives ?
 
-## Partie 4
+## Partie 4: Les redirections et les pipes
 
+### 4.0 But
+
+Vous allez explorer la manière dont Linux gère les données textuelles à travers les flux standard : l'entrée (stdin, 0), la sortie standard (stdout, 1) et la sortie d'erreur (stderr, 2). Vous apprendrez à filtrer des résultats et à chaîner des commandes en utilisant des "pipes" (|) , ainsi qu'à isoler les messages d'erreur.
+
+### 4.1 Recherche récursive de texte
+
+1. Nous allons rechercher le nom actuel de votre machine dans tous les fichiers de configuration du système. Pour obtenir ce nom de manière dynamique, nous allons utiliser un "subshell" avec la syntaxe $(commande). Le système exécutera d'abord la commande hostname, puis remplacera $(hostname) par son résultat pour le fournir à grep.
+L'option courte -r de grep permet d'effectuer cette recherche de manière récursive dans tous les sous-dossiers.
+
+2. Lancez la recherche dans le dossier /etc :
+
+   ```bash
+   grep -r "$(hostname)" /etc
+   ```
+
+3. Observez les résultats. Notez que certains fichiers peuvent être protégés et que vous pourriez voir des messages d'erreur indiquant que vous n'avez pas la permission de les lire.
+
+4. Vu que seul le nom des fichiers contenant le nom de votre machine vous intéresse, vous pouvez utiliser l'option -l de grep pour n'afficher que les noms de fichiers correspondants, sans afficher les lignes correspondantes.
+
+   ```bash
+   grep -rl "$(hostname)" /etc
+   ```
+
+### 4.2: Redirection de la sortie d'erreur
+
+1. Lors de l'étape précédente, vous avez probablement vu apparaître de nombreux messages d'erreur. C'est normal : en tant qu'utilisateur standard, vous n'avez pas le droit de lire certains fichiers.
+Ces erreurs sont envoyées dans le flux "stderr" (le descripteur numéro 2). Pour avoir un résultat propre, nous allons rediriger uniquement ces erreurs vers un fichier spécial nommé /dev/null, qui agit comme un trou noir supprimant tout ce qu'on y envoie. Le symbole 2> signifie "rediriger le flux d'erreur".
+
+2. Relancez la commande en masquant les erreurs :
+
+   ```bash
+   grep -lr "$(hostname)" /etc 2>/dev/null
+   ```
+
+3. Observez les résultats. Vous devriez maintenant voir uniquement les lignes contenant le nom de votre machine, sans les messages d'erreur.
+
+4. Bien sur, au lieu d'utiliser une redirection, vous pouvez demander à la commande grep d'ignorer les erreurs de permission en utilisant l'option -s (silent) :
+
+   ```bash
+   grep -slr "$(hostname)" /etc
+   ```
+
+### 4.3: Chaînage de commandes avec des pipes
+
+1. Nous voulons maintenant lister tous les fichiers finissant par .log situés dans /var/log.
+Nous allons utiliser la commande ls avec les options courtes -l (liste détaillée pour voir la date) et -t (pour trier par date décroissante). Ensuite, nous utiliserons le symbole pipe | pour connecter la sortie de cette commande ls directement dans l'entrée de la commande grep, qui filtrera uniquement les lignes contenant ".log".
+
+   ```bash
+   ls -lt /var/log | grep ".log"
+   ```
+
+2. Observez les résultats. Vous devriez voir une liste de fichiers .log triés par date, avec les détails de chaque fichier.
+
+3. Vous pouvez voir que des fichiers qui ne terminent pas par .log sont aussi affichés, car ils contiennent ".log" dans leur nom (par exemple, "syslog.1"). C'est parce que grep recherche la chaîne ".log" n'importe où dans le nom du fichier, sur base d'une regexp (une expression régulière). Pour filtrer uniquement les fichiers qui finissent par .log, vous pouvez utiliser une expression régulière avec grep :
+
+   ```bash
+   ls -lt /var/log | grep "\.log$"
+   ```
+
+4. Vous pouvez aussi utiliser l'option -F de grep pour faire une recherche littérale sans interpréter les caractères spéciaux, et ainsi éviter d'avoir à échapper le point :
+
+   ```bash
+   ls -lt /var/log | grep -F ".log"
+   ```
+
+### 4.4 Sauvegarde du résultat
+
+1. Pour garder une trace de cette recherche, nous allons rejouer la commande précédente en ajoutant une redirection standard (>) pour envoyer le résultat final dans un fichier texte nommé resultats_logs.txt
+
+   ```bash
+   ls -lt /var/log | grep -F ".log" > resultats_logs.txt
+   ```
+
+2. Vérifiez que le fichier resultats_logs.txt a été créé et affichez son contenu avec la commande cat :
+
+   ```bash
+   cat resultats_logs.txt
+   ```
+
+### 4.x Questions
+
+1. Que fait la commande `grep -r` ?
+2. Que fait la commande `grep -l` ?
+3. Que fait la commande `2>/dev/null` ?
+4. Que fait la commande `ls -lt` ?
+5. Que fait la commande `grep -F` ?
+6. Que fait la commande `>` pour rediriger la sortie d'une commande vers un fichier ? Comment faire pour ajouter du contenu à la fin du fichier au lieu de l'écraser ?
+
+## Partie 5: Gestion des processus et signaux
+
+### 5.0 But
+
+L'objectif de cet exercice est de vous familiariser avec la gestion des processus et des signaux en Linux. Vous apprendrez à identifier les processus en cours d'exécution, à envoyer des signaux pour les contrôler, et à comprendre comment les processus réagissent à ces signaux.
+
+### 5.1: Identifier les processus en cours d'exécution
+
+1. Utilisez la commande `ps` pour afficher les processus en cours d'exécution sur votre machine.
+
+   ```bash
+   ps aux
+   ```
+
+2. Observez la liste des processus et notez les informations telles que le PID (Process ID), l'utilisateur, et la commande associée à chaque processus.
+
+3. Filtrez la liste des processus pour n'afficher que ceux qui sont liés à systemd (le gestionnaire de services) en utilisant la commande `grep` :
+
+   ```bash
+   ps aux | grep systemd
+   ```
+
+4. Utilisez la commande `htop` pour afficher les processus en temps réel et observer l'utilisation des ressources par chaque processus.
+
+   ```bash
+   htop
+   ```
+
+### 5.2 : Envoyer des signaux à un processus
+
+1. Choisissez un processus dans la liste que vous souhaitez contrôler (par exemple, un processus de votre terminal ou un processus de test que vous avez lancé). Notez son PID.
+
+2. Utilisez la commande `kill` pour envoyer un signal de terminaison (SIGTERM) à ce processus en utilisant son PID :
+
+   ```bash
+   kill -15 <PID>
+   ```
+
+3. Vous pouvez également envoyer un signal de terminaison forcée (SIGKILL) à un processus en utilisant l'option -9. Attention, cela arrêtera immédiatement le processus sans lui donner la chance de se fermer proprement, pouvant mener à des pertes de données ou à des états incohérents :
+
+   ```bash
+   kill -9 <PID>
+   ```
+
+### 5.3 : Réagir aux signaux
+
+1. Créez un script bash nommé `signal_test.sh` qui affiche un message lorsqu'il reçoit un signal de terminaison (SIGTERM). Le contenu du fichier devrait ressembler à ceci :
+
+   ```bash
+   #!/bin/bash
+
+   # --- CONFIGURATION DES GESTIONNAIRES DE SIGNAUX (TRAPS) ---
+
+   # Fonction exécutée en cas d'arrêt (Ctrl+C ou kill standard)
+   fonction_quitter() {
+      echo -e "\n[INTERRUPTION] Signal d'arrêt reçu !"
+      echo "[INFO] Arrêt forcé de la commande en cours (PID du ping : $PING_PID)..."
+
+      # On tue proprement le processus enfant (le ping)
+      kill "$PING_PID" 2>/dev/null
+
+      echo "[INFO] Nettoyage terminé. Script fermé proprement."
+      exit 0
+   }
+
+   # Fonction personnalisée exécutée en cas de signal SIGUSR1
+   fonction_statut() {
+      echo -e "\n[STATUT] Signal SIGUSR1 reçu ! Tout va bien, le script tourne toujours."
+      echo "[STATUT] La commande longue (ping) est active sous le PID : $PING_PID."
+   }
+
+   # Liaison des signaux aux fonctions correspondantes
+   # SIGINT  = Ctrl+C
+   # SIGTERM = Commande 'kill' par défaut
+   # SIGUSR1 = Signal personnalisé pour l'utilisateur
+   trap fonction_quitter SIGINT SIGTERM
+   trap fonction_statut SIGUSR1
+
+   # --- CORPS DU SCRIPT ---
+
+   echo "========================================================="
+   echo " Gestion des Signaux Bash"
+   echo "========================================================="
+   echo "Mon PID (Process ID) est : $$"
+   echo "Pour envoyer un signal personnalisé : kill -SIGUSR1 $$"
+   echo "Pour quitter proprement : Ctrl+C ou kill $$"
+   echo "========================================================="
+   echo "Lancement d'une commande longue (ping infini vers localhost)..."
+
+   # Lancement de la commande en tâche de fond
+   ping 127.0.0.1 > /dev/null &
+   PING_PID=$! # On récupère le PID du ping
+
+   # Le script attend la fin du processus enfant.
+   # 'wait' a l'avantage d'être interrompu instantanément par les captures (traps).
+   while kill -0 "$PING_PID" 2>/dev/null; do
+      wait "$PING_PID"
+   done
+
+   echo "[INFO] Le processus enfant s'est terminé. Fin du script."
+   ```
+
+2. Rendez le script exécutable :
+
+   ```bash
+   chmod +x signal_test.sh
+   ```
+
+3. Exécutez le script dans un terminal. Le PID est donné dans le message de bienvenue du script :
+
+   ```bash
+   ./signal_test.sh
+   ```
+
+4. Pendant que le script est en cours d'exécution, ouvrez un autre terminal et envoyez un signal personnalisé (SIGUSR1) au script pour voir comment il réagit :
+
+   ```bash
+   kill -SIGUSR1 <PID_DU_SCRIPT>
+   ```
+
+5. Observez la sortie du script dans le premier terminal. Vous devriez voir le message indiquant que le signal SIGUSR1 a été reçu et que le script continue de fonctionner.
+
+6. Lancez la commande suivante pour afficher les processus ping en cours, et leur parent.
+
+   ```bash
+   ps axo user,tty,pid,ppid,cmd | awk 'NR == 1 || /ping 127.0.0.1/'
+   ```
+
+7. Pour arrêter le script proprement, vous pouvez soit appuyer sur `Ctrl + C` dans le terminal où le script s'exécute, soit envoyer un signal de terminaison (SIGTERM) depuis un autre terminal :
+
+   ```bash
+   kill <PID_DU_SCRIPT>
+   ```
+
+8. Observez la sortie du script dans le premier terminal. Vous devriez voir le message indiquant que le signal de terminaison a été reçu et que le script a arrêté le processus enfant (le ping) avant de se fermer proprement.
+
+9. Essayez d'envoyer un signal SIGKILL au script pour voir comment il réagit. Notez que le script ne pourra pas intercepter ce signal et sera immédiatement arrêté sans exécuter les fonctions de nettoyage.
+
+   ```bash
+   kill -9 <PID_DU_SCRIPT>
+   ```
+
+10. Essayez de chercher le process ping dans le terminal avec la commande `ps` pour vérifier si le processus ping est toujours actif après l'envoi du signal SIGKILL. Vous devriez constater que le processus ping existe toujours, car le script n'a pas eu l'occasion de le tuer proprement.
+
+   ```bash
+   ps axo user,tty,pid,ppid,cmd | awk 'NR == 1 || /ping 127.0.0.1/'
+   ```
+
+11. Notez que le parent n'est plus le script bash (qui a été tué), mais une instance du processus systemd dédiée à l'utilisateur (pas le process 1).
+
+### 5.x Questions
+
+1. Que fait la commande `ps aux` ?
+2. Que fait la commande `htop` ?
+3. Que fait la commande `kill -15 <PID>` ?
+4. Que fait la commande `kill -9 <PID>` ?
+5. Comment le script `signal_test.sh` gère-t-il les signaux SIGINT, SIGTERM et SIGUSR1 ? Que font les fonctions `fonction_quitter` et `fonction_statut` ?
+6. Que se passe-t-il lorsque vous envoyez un signal SIGKILL au script ? Pourquoi le script ne peut-il pas intercepter ce signal ?
+7. Que se passe-t-il avec le processus ping lorsque vous envoyez un signal SIGKILL au script ? Pourquoi ?
+8. Comment vérifier que le processus ping est toujours actif après l'envoi du signal SIGKILL ? Quel est le parent de ce processus ping dans ce cas ?
