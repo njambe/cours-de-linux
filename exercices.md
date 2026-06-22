@@ -544,7 +544,7 @@ L'objectif de cet exercice est de vous familiariser avec la gestion des processu
 1. Créez un script bash nommé `signal_test.sh` qui affiche un message lorsqu'il reçoit un signal de terminaison (SIGTERM). Le contenu du fichier devrait ressembler à ceci :
 
    ```bash
-   #!/bin/bash
+   #!/usr/bin/env bash
 
    # --- CONFIGURATION DES GESTIONNAIRES DE SIGNAUX (TRAPS) ---
 
@@ -655,3 +655,75 @@ L'objectif de cet exercice est de vous familiariser avec la gestion des processu
 6. Que se passe-t-il lorsque vous envoyez un signal SIGKILL au script ? Pourquoi le script ne peut-il pas intercepter ce signal ?
 7. Que se passe-t-il avec le processus ping lorsque vous envoyez un signal SIGKILL au script ? Pourquoi ?
 8. Comment vérifier que le processus ping est toujours actif après l'envoi du signal SIGKILL ? Quel est le parent de ce processus ping dans ce cas ?
+
+## Partie 6: Automatisation avec systemd
+
+### 6.0 But
+
+Dans ce laboratoire, vous allez découvrir comment Linux gère l'automatisation moderne des tâches avec le gestionnaire systemd. Au lieu d'utiliser l'ancien planificateur cron , vous allez packager un script sous forme de service système, puis créer un "timer" pour l'exécuter de manière répétée
+
+### 6.1: Créer un service systemd
+
+1. Créez un script bash nommé `/usr/local/bin/mon_service.sh` (en mode sudo) qui affiche la date et l'heure actuelles dans un fichier de log à chaque exécution. Le contenu du fichier devrait ressembler à ceci :
+
+   ```bash
+   #!/usr/bin/env bash
+   echo "Service exécuté à : $(date)" >> /var/log/mon_service.log
+   ```
+
+2. Rendez le script exécutable :
+
+   ```bash
+   sudo chmod +x /usr/local/bin/mon_service.sh
+   ```
+
+3. Créez un fichier de service systemd nommé `~/.config/systemd/user/mon_service.service` avec le contenu suivant :
+
+   ```ini
+   [Unit]
+   Description=Mon Service de Log de Date
+
+   [Service]
+   Type=oneshot
+   ExecStart=/usr/local/bin/mon_service.sh
+   ```
+
+4. Créez un fichier de timer systemd nommé `~/.config/systemd/user/mon_service.timer` avec le contenu suivant pour exécuter le service toutes les minutes :
+
+   ```ini
+   [Unit]
+   Description=Timer pour Mon Service de Log de Date
+
+   [Timer]
+   OnCalendar=*-*-* *:*:00
+   Persistent=true
+
+   [Install]
+   WantedBy=timers.target
+   ```
+
+5. Rechargez les unités systemd pour prendre en compte les nouveaux fichiers de service et de timer :
+
+   ```bash
+   systemctl --user daemon-reload
+   ```
+
+6. Activez le timer pour qu'il démarre automatiquement à chaque démarrage de session :
+
+   ```bash
+   systemctl --user enable mon_service.timer
+   ```
+
+7. Démarrez le timer pour qu'il commence à exécuter le service immédiatement :
+
+   ```bash
+   systemctl --user start mon_service.timer
+   ```
+
+8. Vérifiez que le service fonctionne en consultant le fichier de log :
+
+   ```bash
+   tail -f /var/log/mon_service.log
+   ```
+
+9. Vous devriez voir une nouvelle entrée avec la date et l'heure à chaque minute.
