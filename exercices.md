@@ -482,7 +482,7 @@ L'objectif de cet exercice est de vous familiariser avec les bases du réseau en
     ```
 
 2. Notez les connexions établies.
-3. Établissez une connexion vers un site web (voir 2.4, étape 1) et réexécutez la commande `ss` pour observer les changements.
+3. Établissez une connexion vers un site web (voir 3.4, étape 1) et réexécutez la commande `ss` pour observer les changements.
 
     ```bash
     ss -tpn
