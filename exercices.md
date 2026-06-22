@@ -184,6 +184,7 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
    ```
 
 3. Enregistrez le fichier et quittez l'éditeur `nano`.
+
 4. Rendez le script exécutable:
 
    ```bash
@@ -209,7 +210,7 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
 1. Ouvrez le fichier `liste_fichiers.sh` dans un éditeur de texte:
 
    ```bash
-   nano /usr/local/bin/liste_fichiers.sh
+   sudo nano /usr/local/bin/liste_fichiers.sh
    ```
 
 2. Modifiez le script pour qu'il accepte une option `-s` qui, si elle est fournie, n'affiche pas la liste des fichiers mais seulement le nombre total de fichiers, et une option `-d` qui affiche seulement le nombre total de répertoires. Le contenu modifié du fichier devrait ressembler à ceci:
@@ -224,30 +225,34 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
        exit 1
    }
 
-    if [[ $# -gt 1 ]]; then
-        help
-    fi
+   if [[ $# -gt 1 ]]; then
+      help
+   fi
 
-    if [[ $1 == "-d" ]]; then
-        DOSSIERS_UNIQUEMENT=1
-    elif [[ $1 == "-s" ]]; then
-        AFFICHER_LISTE=0
-    else
-        help
-    fi
+   case "$1" in
+      -s)
+         AFFICHER_LISTE=0
+         ;;
+      -d)
+         DOSSIERS_UNIQUEMENT=1
+         ;;
+      *)
+         help
+         ;;
+   esac
 
-    if [[ $AFFICHER_LISTE -ne 0 ]]; then
-        echo "Liste des fichiers dans le répertoire courant:"
-        ls -l
-    fi
+   if [[ $AFFICHER_LISTE -ne 0 ]]; then
+      echo "Liste des fichiers dans le répertoire courant:"
+      ls -l
+   fi
 
-    if [[ $DOSSIERS_UNIQUEMENT -ne 1 ]]; then
-        echo "Nombre total de fichiers:"
-        find . -maxdepth 1 -type f | wc -l
-    fi
+   if [[ $DOSSIERS_UNIQUEMENT -ne 1 ]]; then
+      echo "Nombre total de fichiers:"
+      find . -maxdepth 1 -type f | wc -l
+   fi
 
-    echo "Nombre total de répertoires:"
-    find . -maxdepth 1 -type d | wc -l
+   echo "Nombre total de répertoires:"
+   find . -maxdepth 1 -type d | wc -l
    ```
 
 3. Enregistrez le fichier et quittez l'éditeur `nano`.
@@ -273,19 +278,53 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
 1. Ouvrez le fichier `liste_fichiers.sh` dans un éditeur de texte:
 
    ```bash
-   nano /usr/local/bin/liste_fichiers.sh
+   sudo nano /usr/local/bin/liste_fichiers.sh
    ```
 
 2. Modifiez le script pour qu'il utilise les subshells, et affiche le nombre de fichiers sur une seule ligne. Insérez les lignes suivantes dans le script existant:
 
    ```bash
-    FICHIERS=$(find . -maxdepth 1 -type f | wc -l)
-    DOSSIERS=$(find . -maxdepth 1 -type d | wc -l)
-    echo "Nombre total de fichiers: $FICHIERS"
-    echo "Nombre total de répertoires: $DOSSIERS"
+   #!/usr/bin/env bash
+
+   function help {
+       echo "Usage: $0 [-s] [-d]"
+       echo "  -s    Affiche seulement le nombre total de fichiers"
+       echo "  -d    Affiche seulement le nombre total de répertoires"
+       exit 1
+   }
+
+   if [[ $# -gt 1 ]]; then
+      help
+   fi
+
+   case "$1" in
+      -s)
+         AFFICHER_LISTE=0
+         ;;
+      -d)
+         DOSSIERS_UNIQUEMENT=1
+         ;;
+      *)
+         help
+         ;;
+   esac
+
+   if [[ $AFFICHER_LISTE -ne 0 ]]; then
+      echo "Liste des fichiers dans le répertoire courant:"
+      ls -l
+   fi
+
+   if [[ $DOSSIERS_UNIQUEMENT -ne 1 ]]; then
+      FICHIERS=$(find . -maxdepth 1 -type f | wc -l)
+      echo "Nombre total de fichiers: $FICHIERS"
+   fi
+
+   DOSSIERS=$(find . -maxdepth 1 -type d | wc -l)
+   echo "Nombre total de répertoires: $DOSSIERS"
    ```
 
 3. Enregistrez le fichier et quittez l'éditeur `nano`.
+
 4. Exécutez le script sans options:
 
    ```bash
