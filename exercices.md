@@ -219,40 +219,49 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
    #!/usr/bin/env bash
 
    function help {
-       echo "Usage: $0 [-s] [-d]"
-       echo "  -s    Affiche seulement le nombre total de fichiers"
-       echo "  -d    Affiche seulement le nombre total de répertoires"
-       exit 1
+      echo "Usage: $0 [-s] [-d]"
+      echo "  -s    Affiche seulement le nombre total de fichiers"
+      echo "  -d    Affiche seulement le nombre total de répertoires"
+      exit 1
    }
 
    if [[ $# -gt 1 ]]; then
       help
    fi
 
+   AFFICHER_LISTE=1
+   AFFICHER_FICHIERS=1
+   AFFICHER_DOSSIERS=1
+
    case "$1" in
-      -s)
-         AFFICHER_LISTE=0
-         ;;
-      -d)
-         DOSSIERS_UNIQUEMENT=1
-         ;;
-      *)
+   -s)
+      AFFICHER_LISTE=0
+      ;;
+   -d)
+      AFFICHER_FICHIERS=0
+      AFFICHER_LISTE=0
+      ;;
+   *)
+      if [[ -n $1 ]]; then
          help
-         ;;
+      fi
+      ;;
    esac
 
-   if [[ $AFFICHER_LISTE -ne 0 ]]; then
+   if [[ $AFFICHER_LISTE -eq 1 ]]; then
       echo "Liste des fichiers dans le répertoire courant:"
       ls -l
    fi
 
-   if [[ $DOSSIERS_UNIQUEMENT -ne 1 ]]; then
+   if [[ $AFFICHER_FICHIERS -eq 1 ]]; then
       echo "Nombre total de fichiers:"
       find . -maxdepth 1 -type f | wc -l
    fi
 
-   echo "Nombre total de répertoires:"
-   find . -maxdepth 1 -type d | wc -l
+   if [[ $AFFICHER_DOSSIERS -eq 1 ]]; then
+      echo "Nombre total de répertoires:"
+      find . -maxdepth 1 -type d | wc -l
+   fi
    ```
 
 3. Enregistrez le fichier et quittez l'éditeur `nano`.
@@ -287,40 +296,49 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
    #!/usr/bin/env bash
 
    function help {
-       echo "Usage: $0 [-s] [-d]"
-       echo "  -s    Affiche seulement le nombre total de fichiers"
-       echo "  -d    Affiche seulement le nombre total de répertoires"
-       exit 1
+      echo "Usage: $0 [-s] [-d]"
+      echo "  -s    Affiche seulement le nombre total de fichiers"
+      echo "  -d    Affiche seulement le nombre total de répertoires"
+      exit 1
    }
 
    if [[ $# -gt 1 ]]; then
       help
    fi
 
+   AFFICHER_LISTE=1
+   AFFICHER_FICHIERS=1
+   AFFICHER_DOSSIERS=1
+
    case "$1" in
-      -s)
-         AFFICHER_LISTE=0
-         ;;
-      -d)
-         DOSSIERS_UNIQUEMENT=1
-         ;;
-      *)
+   -s)
+      AFFICHER_LISTE=0
+      ;;
+   -d)
+      AFFICHER_FICHIERS=0
+      AFFICHER_LISTE=0
+      ;;
+   *)
+      if [[ -n $1 ]]; then
          help
-         ;;
+      fi
+      ;;
    esac
 
-   if [[ $AFFICHER_LISTE -ne 0 ]]; then
+   if [[ $AFFICHER_LISTE -eq 1 ]]; then
       echo "Liste des fichiers dans le répertoire courant:"
       ls -l
    fi
 
-   if [[ $DOSSIERS_UNIQUEMENT -ne 1 ]]; then
+   if [[ $AFFICHER_FICHIERS -eq 1 ]]; then
       FICHIERS=$(find . -maxdepth 1 -type f | wc -l)
       echo "Nombre total de fichiers: $FICHIERS"
    fi
 
-   DOSSIERS=$(find . -maxdepth 1 -type d | wc -l)
-   echo "Nombre total de répertoires: $DOSSIERS"
+   if [[ $AFFICHER_DOSSIERS -eq 1 ]]; then
+      DOSSIERS=$(find . -maxdepth 1 -type d | wc -l)
+      echo "Nombre total de répertoires: $DOSSIERS"
+   fi
    ```
 
 3. Enregistrez le fichier et quittez l'éditeur `nano`.
