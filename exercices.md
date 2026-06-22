@@ -2,7 +2,7 @@
 
 ## Partie 1: Les fichiers et les dossiers
 
-### 1.0 But
+### 1.0: But
 
 Dans cet exercice, vous allez apprendre à manipuler des dossiers et des fichiers en ligne de commande. Vous verrez également comment rediriger le résultat d'une commande dans un fichier et comment vérifier la nature d'un fichier, car sous Linux, tout est un fichier.
 
@@ -57,7 +57,7 @@ Dans cet exercice, vous allez apprendre à manipuler des dossiers et des fichier
    file dir1/subdir1/file
    ```
 
-### 1.x Questions
+### 1.x: Questions
 
 1. Que fait la commande `mkdir -p` ?
 2. Que fait la commande `ls -R` ?
@@ -66,7 +66,7 @@ Dans cet exercice, vous allez apprendre à manipuler des dossiers et des fichier
 
 ## Partie 2: Le scripting
 
-### 2.0 But
+### 2.0: But
 
 L'objectif de cet exercice est de se familiariser avec les bases de bash, du script shell et des commandes Linux.
 
@@ -294,7 +294,7 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
 
 5. Vous devriez voir la liste des fichiers et des répertoires, ainsi que leur nombre total, s'afficher dans le terminal.
 
-### 2.7 Créer un script qui affiche un message donné en argument autant de fois que demandé
+### 2.7: Créer un script qui affiche un message donné en argument autant de fois que demandé
 
 1. Créez un nouveau fichier texte nommé `affiche_message.sh`:
 
@@ -340,7 +340,7 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
    ./affiche_message.sh 5 "Bonjour, Monde!"
    ```
 
-### 2.x Questions
+### 2.x: Questions
 
 1. Que fait la ligne `#!/usr/bin/env bash` au début de chaque script?
 2. Comment renommer un fichier en utilisant la ligne de commande? Quelle différence avec un déplacement de fichier?
@@ -350,7 +350,7 @@ L'objectif de cet exercice est de se familiariser avec les bases de bash, du scr
 
 ## Partie 3: Le réseau
 
-### 3.0 But
+### 3.0: But
 
 L'objectif de cet exercice est de vous familiariser avec les bases du réseau en Linux.
 
@@ -437,7 +437,7 @@ L'objectif de cet exercice est de vous familiariser avec les bases du réseau en
     ss -tpn
     ```
 
-### 3.x Questions
+### 3.x: Questions
 
 1. Quelle est l'adresse IP de votre interface réseau principale ?
 2. Quel est le temps de réponse lorsque vous pinguez Google ?
@@ -449,11 +449,11 @@ L'objectif de cet exercice est de vous familiariser avec les bases du réseau en
 
 ## Partie 4: Les redirections et les pipes
 
-### 4.0 But
+### 4.0: But
 
 Vous allez explorer la manière dont Linux gère les données textuelles à travers les flux standard : l'entrée (stdin, 0), la sortie standard (stdout, 1) et la sortie d'erreur (stderr, 2). Vous apprendrez à filtrer des résultats et à chaîner des commandes en utilisant des "pipes" (|) , ainsi qu'à isoler les messages d'erreur.
 
-### 4.1 Recherche récursive de texte
+### 4.1: Recherche récursive de texte
 
 1. Nous allons rechercher le nom actuel de votre machine dans tous les fichiers de configuration du système. Pour obtenir ce nom de manière dynamique, nous allons utiliser un "subshell" avec la syntaxe $(commande). Le système exécutera d'abord la commande hostname, puis remplacera $(hostname) par son résultat pour le fournir à grep.
 L'option courte -r de grep permet d'effectuer cette recherche de manière récursive dans tous les sous-dossiers.
@@ -514,7 +514,7 @@ Nous allons utiliser la commande ls avec les options courtes -l (liste détaill�
    ls -lt /var/log | grep -F ".log"
    ```
 
-### 4.4 Sauvegarde du résultat
+### 4.4: Sauvegarde du résultat
 
 1. Pour garder une trace de cette recherche, nous allons rejouer la commande précédente en ajoutant une redirection standard (>) pour envoyer le résultat final dans un fichier texte nommé resultats_logs.txt
 
@@ -528,7 +528,7 @@ Nous allons utiliser la commande ls avec les options courtes -l (liste détaill�
    cat resultats_logs.txt
    ```
 
-### 4.x Questions
+### 4.x: Questions
 
 1. Que fait la commande `grep -r` ?
 2. Que fait la commande `grep -l` ?
@@ -539,7 +539,7 @@ Nous allons utiliser la commande ls avec les options courtes -l (liste détaill�
 
 ## Partie 5: Gestion des processus et signaux
 
-### 5.0 But
+### 5.0: But
 
 L'objectif de cet exercice est de vous familiariser avec la gestion des processus et des signaux en Linux. Vous apprendrez à identifier les processus en cours d'exécution, à envoyer des signaux pour les contrôler, et à comprendre comment les processus réagissent à ces signaux.
 
@@ -565,7 +565,7 @@ L'objectif de cet exercice est de vous familiariser avec la gestion des processu
    htop
    ```
 
-### 5.2 : Envoyer des signaux à un processus
+### 5.2: Envoyer des signaux à un processus
 
 1. Choisissez un processus dans la liste que vous souhaitez contrôler (par exemple, un processus de votre terminal ou un processus de test que vous avez lancé). Notez son PID.
 
@@ -581,7 +581,7 @@ L'objectif de cet exercice est de vous familiariser avec la gestion des processu
    kill -9 <PID>
    ```
 
-### 5.3 : Réagir aux signaux
+### 5.3: Réagir aux signaux
 
 1. Créez un script bash nommé `signal_test.sh` qui affiche un message lorsqu'il reçoit un signal de terminaison (SIGTERM). Le contenu du fichier devrait ressembler à ceci :
 
@@ -687,7 +687,7 @@ L'objectif de cet exercice est de vous familiariser avec la gestion des processu
 
 11. Notez que le parent n'est plus le script bash (qui a été tué), mais une instance du processus systemd dédiée à l'utilisateur (pas le process 1).
 
-### 5.x Questions
+### 5.x: Questions
 
 1. Que fait la commande `ps aux` ?
 2. Que fait la commande `htop` ?
@@ -700,7 +700,7 @@ L'objectif de cet exercice est de vous familiariser avec la gestion des processu
 
 ## Partie 6: Automatisation avec systemd
 
-### 6.0 But
+### 6.0: But
 
 Dans ce laboratoire, vous allez découvrir comment Linux gère l'automatisation moderne des tâches avec le gestionnaire systemd. Au lieu d'utiliser l'ancien planificateur cron , vous allez packager un script sous forme de service système, puis créer un "timer" pour l'exécuter de manière répétée
 
@@ -781,7 +781,7 @@ Dans ce laboratoire, vous allez découvrir comment Linux gère l'automatisation 
     tail -f /var/log/mon_service.log
     ```
 
-### 6.x Questions
+### 6.x: Questions
 
 1. Que fait la section [Unit] dans un fichier de service systemd ?
 2. Que fait la section [Service] dans un fichier de service systemd ?
@@ -797,7 +797,7 @@ Dans ce laboratoire, vous allez découvrir comment Linux gère l'automatisation 
 
 ## Partie 7: Gestion des utilisateurs, des groupes et des permissions
 
-### 7.0 But
+### 7.0: But
 
 Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécurité, chaque fichier et répertoire appartient à un utilisateur (son propriétaire) et à un groupe. Dans ce laboratoire, vous allez apprendre à créer de nouveaux utilisateurs, à leur attribuer des mots de passe, et à manipuler les droits d'accès (lecture, écriture, exécution) pour bloquer l'accès à vos fichiers personnels.
 
@@ -821,7 +821,7 @@ Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécur
    ls -ld /srv/public
    ```
 
-### 7.2 Vue d'ensemble des utilisateurs et création d'utilisateurs interactifs
+### 7.2: Vue d'ensemble des utilisateurs et création d'utilisateurs interactifs
 
 1. Affichez la liste des utilisateurs existants sur votre système en consultant le fichier /etc/passwd :
 
@@ -841,7 +841,7 @@ Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécur
    sudo awk -F':' '$2 ~ /\$y.*/' /etc/shadow
    ```
 
-### 7.3 Création des utilisateurs interactifs
+### 7.3: Création des utilisateurs interactifs
 
 1. Créez un nouvel utilisateur nommé `alice` avec la commande useradd. L'option -m crée automatiquement un répertoire personnel pour l'utilisateur.
 
@@ -862,7 +862,7 @@ Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécur
    sudo passwd bob
    ```
 
-### 7.4 Création d'un groupe et ajout des utilisateurs
+### 7.4: Création d'un groupe et ajout des utilisateurs
 
 1. Créez un nouveau groupe nommé `groupe_partage` avec la commande groupadd :
 
@@ -902,7 +902,7 @@ Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécur
    ls -ld /srv/public
    ```
 
-### 7.5 Connexion et création d'un fichier
+### 7.5: Connexion et création d'un fichier
 
 1. Connectez-vous en tant qu'utilisateur `alice` en utilisant la commande su :
 
@@ -974,7 +974,7 @@ Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécur
 
 12. Vous devriez recevoir un message d'erreur indiquant que l'accès est refusé, car le fichier appartient à `bob` et a des permissions restrictives (600).
 
-### 7.x Questions
+### 7.x: Questions
 
 1. Quelle est la différence entre les permissions 0777 et 0770 pour un dossier ?
 2. Comment vérifier les permissions d'un fichier ou d'un dossier avec la commande `ls` ?
