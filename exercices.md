@@ -720,10 +720,229 @@ Dans ce laboratoire, vous allez découvrir comment Linux gère l'automatisation 
    systemctl --user start mon_service.timer
    ```
 
-8. Vérifiez que le service fonctionne en consultant le fichier de log :
+8. Testez que le service fonctionne en le démarrant manuellement :
 
    ```bash
-   tail -f /var/log/mon_service.log
+   systemctl --user start mon_service.service
    ```
 
-9. Vous devriez voir une nouvelle entrée avec la date et l'heure à chaque minute.
+9. Si le fichier n'existe pas déjà, le service va échouer, car il tourne en tant qu'utilisateur standard et n'a pas les permissions pour écrire dans /var/log. Créez le fichier de log avec les bonnes permissions pour permettre au service d'écrire dedans :
+
+   ```bash
+   sudo touch /var/log/mon_service.log
+   sudo chmod 0666 /var/log/mon_service.log
+   ```
+
+10. Vérifiez que le service s'exécute correctement et que les entrées de log sont ajoutées à /var/log/mon_service.log :
+
+    ```bash
+    tail -f /var/log/mon_service.log
+    ```
+
+### 6.x Questions
+
+1. Que fait la section [Unit] dans un fichier de service systemd ?
+2. Que fait la section [Service] dans un fichier de service systemd ?
+3. Que fait la section [Timer] dans un fichier de timer systemd ?
+4. Que fait la section [Install] dans un fichier de timer systemd ?
+5. Que fait la commande `systemctl --user daemon-reload` ?
+6. Que fait la commande `systemctl --user enable mon_service.timer` ?
+7. Que fait la commande `systemctl --user start mon_service.timer` ?
+8. Pourquoi le service échoue-t-il initialement lorsqu'il essaie d'écrire dans /var/log ? Comment résoudre ce problème ?
+9. Comment vérifier que le service s'exécute correctement et que les entrées de log sont ajoutées à /var/log/mon_service.log ?
+10. A quoi sert la directive `Persistent=true` dans la section [Timer] du fichier de timer systemd ?
+11. A quoi sert l'option --user dans les commandes systemctl ? Quelle est la différence entre les services système et les services utilisateur dans systemd ?
+
+## Partie 7: Gestion des utilisateurs, des groupes et des permissions
+
+### 7.0 But
+
+Linux est un système d'exploitation multi-utilisateurs. Pour garantir la sécurité, chaque fichier et répertoire appartient à un utilisateur (son propriétaire) et à un groupe. Dans ce laboratoire, vous allez apprendre à créer de nouveaux utilisateurs, à leur attribuer des mots de passe, et à manipuler les droits d'accès (lecture, écriture, exécution) pour bloquer l'accès à vos fichiers personnels.
+
+### 7.1: Création d'un dossier partagé public
+
+1. Créez un nouveau dossier nommé `public` dans le répertoire `/srv` :
+
+   ```bash
+   sudo mkdir /srv/public
+   ```
+
+2. Par défaut, ce dossier est protégé. Nous allons utiliser la commande chmod avec la notation octale pour lui donner les droits 0777. Cela signifie que le propriétaire (7), le groupe (7) et tous les autres utilisateurs (7) auront les droits de lecture (4) + écriture (2) + exécution (1). C'est un dossier totalement ouvert.
+
+   ```bash
+   sudo chmod 0777 /srv/public
+   ```
+
+3. Vérifiez les permissions du dossier avec la commande ls :
+
+   ```bash
+   ls -ld /srv/public
+   ```
+
+### 7.2 Vue d'ensemble des utilisateurs et création d'utilisateurs interactifs
+
+1. Affichez la liste des utilisateurs existants sur votre système en consultant le fichier /etc/passwd :
+
+   ```bash
+   tail -n 5 /etc/passwd
+   ```
+
+2. N'affichez que les utilisateurs interactifs (ceux qui ont un shell valide) en utilisant la commande grep :
+
+   ```bash
+   grep -E '(/bin/bash|/bin/sh|/bin/zsh)$' /etc/passwd
+   ```
+
+3. Affichez la liste des utilisateurs qui ont un mot de passe défini (ceux dont le hash du mot de passe commence par $y$) en utilisant la commande awk pour filtrer le fichier /etc/shadow :
+
+   ```bash
+   sudo awk -F':' '$2 ~ /\$y.*/' /etc/shadow
+   ```
+
+### 7.3 Création des utilisateurs interactifs
+
+1. Créez un nouvel utilisateur nommé `alice` avec la commande useradd. L'option -m crée automatiquement un répertoire personnel pour l'utilisateur.
+
+   ```bash
+   sudo useradd -m alice
+   ```
+
+2. Attribuez un mot de passe à l'utilisateur `alice` avec la commande passwd (mettez un mot de passe simple pour les besoins de l'exercice, par exemple "alice") :
+
+   ```bash
+   sudo passwd alice
+   ```
+
+3. Répétez les étapes 1 et 2 pour créer un autre utilisateur nommé `bob` avec le mot de passe "bob".
+
+   ```bash
+   sudo useradd -m bob
+   sudo passwd bob
+   ```
+
+### 7.4 Création d'un groupe et ajout des utilisateurs
+
+1. Créez un nouveau groupe nommé `groupe_partage` avec la commande groupadd :
+
+   ```bash
+   sudo groupadd groupe_partage
+   ```
+
+2. Ajoutez les utilisateurs `alice` et `bob` au groupe `groupe_partage` avec la commande usermod :
+
+   ```bash
+   sudo usermod -aG groupe_partage alice
+   sudo usermod -aG groupe_partage bob
+   ```
+
+3. Vérifiez que les utilisateurs ont bien été ajoutés au groupe en utilisant la commande groups :
+
+   ```bash
+   groups alice
+   groups bob
+   ```
+
+4. Changez le groupe propriétaire du dossier `/srv/public` pour qu'il appartienne au groupe `groupe_partage` avec la commande chown :
+
+   ```bash
+   sudo chgrp groupe_partage /srv/public
+   ```
+
+5. Changez les permissions du dossier `/srv/public` pour que le groupe ait les droits de lecture, écriture et exécution (7) et que les autres utilisateurs n'aient aucun droit (0). Cela signifie que seul le propriétaire et les membres du groupe pourront accéder au dossier.
+
+   ```bash
+   sudo chmod 0770 /srv/public
+   ```
+
+6. Vérifiez les permissions du dossier avec la commande ls :
+
+   ```bash
+   ls -ld /srv/public
+   ```
+
+### 7.5 Connexion et création d'un fichier
+
+1. Connectez-vous en tant qu'utilisateur `alice` en utilisant la commande su :
+
+   ```bash
+   su - alice
+   ```
+
+2. Créez un fichier nommé `fichier_alice.txt` dans le dossier `/srv/public` et écrivez-y du texte :
+
+   ```bash
+   echo "Ceci est le fichier d'Alice." > /srv/public/fichier_alice.txt
+   ```
+
+3. Vérifiez que le fichier a été créé et affichez son contenu avec la commande cat :
+
+   ```bash
+   cat /srv/public/fichier_alice.txt
+   ```
+
+4. Déconnectez-vous de l'utilisateur `alice` en tapant `exit` ou CTRL+D.
+
+   ```bash
+   exit
+   ```
+
+5. Connectez-vous en tant qu'utilisateur `bob` en utilisant la commande su :
+
+   ```bash
+   su - bob
+   ```
+
+6. Essayez de lire le fichier créé par `alice` avec la commande cat :
+
+   ```bash
+   cat /srv/public/fichier_alice.txt
+   ```
+
+7. Essayez de modifier le fichier créé par `alice` avec la commande echo et redirection :
+
+   ```bash
+   echo "Bob a modifié le fichier." >> /srv/public/fichier_alice.txt
+   ```
+
+8. Vérifiez que le fichier a été modifié et affichez son contenu avec la commande cat :
+
+   ```bash
+   cat /srv/public/fichier_alice.txt
+   ```
+
+9. Créez un fichier secret à bob dans le répertoire `/srv/public` et vérifiez que `alice` ne peut pas le lire.
+
+   ```bash
+   echo "Ceci est le fichier secret de Bob." > /srv/public/fichier_bob.txt
+   chmod 0600 /srv/public/fichier_bob.txt
+   ```
+
+10. Déconnectez-vous de l'utilisateur `bob` en tapant `exit` ou CTRL+D.
+
+    ```bash
+    exit
+    ```
+
+11. Connectez-vous à nouveau en tant qu'utilisateur `alice` et essayez de lire le fichier secret de ` bob` :
+
+    ```bash
+    su - alice
+    cat /srv/public/fichier_bob.txt
+    ```
+
+12. Vous devriez recevoir un message d'erreur indiquant que l'accès est refusé, car le fichier appartient à `bob` et a des permissions restrictives (600).
+
+### 7.x Questions
+
+1. Quelle est la différence entre les permissions 0777 et 0770 pour un dossier ?
+2. Comment vérifier les permissions d'un fichier ou d'un dossier avec la commande `ls` ?
+3. Que fait la commande `useradd -m` ?
+4. Que fait la commande `passwd` ?
+5. Que fait la commande `groupadd` ?
+6. Que fait la commande `usermod -aG` ?
+7. Que fait la commande `chgrp` ?
+8. Que fait la commande `chmod` avec les permissions 0770 ?
+9. Que se passe-t-il lorsque `bob` essaie de lire le fichier secret de `alice` ? Pourquoi ?
+10. Que se passe-t-il lorsque `alice` essaie de lire le fichier secret de `bob` ? Pourquoi ?
+11. Comment pouvez-vous vérifier à quel groupe appartient un utilisateur avec la commande `groups` ?
+12. Pourquoi est-il important de gérer correctement les permissions et les groupes sur un système multi-utilisateurs ?
